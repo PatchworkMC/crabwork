@@ -81,6 +81,10 @@ java {
     withSourcesJar()
 }
 
+minecraft {
+    accessWidener = file("src/main/resources/crabwork.aw")
+}
+
 tasks.withType<JavaCompile> {
     options.encoding = "UTF-8"
 
