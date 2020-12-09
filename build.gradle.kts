@@ -29,6 +29,11 @@ group = "net.patchworkmc"
 version = "1.0.0-SNAPSHOT"
 
 repositories {
+    maven {
+        name = "PatchworkMC"
+        url = uri("https://dl.bintray.com/patchworkmc/Patchwork-Maven/")
+    }
+
     // For Fabric-ASM
     maven {
         name = "JitPack"
@@ -44,13 +49,26 @@ dependencies {
     // Fabric-API
     modImplementation("net.fabricmc.fabric-api", "fabric-api", "0.23.2+1.14")
 
+    // Annotations
+    implementation("com.google.code.findbugs", "jsr305", "3.0.2")
+
+    val include = mutableSetOf<Dependency>()
+
+    // EventBus
+    include += implementation("net.patchworkmc", "patchwork-eventbus", "2.0.1", classifier = "all")
+    include += implementation("net.jodah", "typetools", "0.6.0")
+
     // Patching
-    modImplementation("com.github.Chocohead", "Fabric-ASM", "v2.1")
-    include("com.github.Chocohead", "Fabric-ASM", "v2.1")
+    include += modImplementation("com.github.Chocohead", "Fabric-ASM", "v2.1")
+
+    include.forEach {
+        include(it)
+    }
 }
 
 sourceSets {
     main {
+        java.srcDirs(file("src/main/forge"))
         java.srcDirs(file("src/main/minecraft"))
     }
 }
