@@ -1,0 +1,31 @@
+{
+  "schemaVersion": 1,
+  "id": "patchwork",
+  "version": "${version}-crabwork",
+  "depends": {
+    "fabricloader": ">=0.10.8",
+    "fabric": ">=0.23.2"
+  },
+  "mixins": [
+    "mixins.crabwork.json"
+  ],
+  "entrypoints": {
+    "mm:early_risers": [
+      "net.patchworkmc.crabwork.asm.CrabworkEarlyRiser::run"
+    ]
+  },
+  "name": "Patchwork Crabwork",
+  "description": "Implementation of Minecraft Forge for Fabric.",
+  "license": "LGPL-2.1-only",
+  "authors": [
+    "PatchworkMC"
+  ],
+  "icon": "assets/patchwork/icon.png",
+  "contact": {
+    "issues": "https://github.com/PatchworkMC/patchwork-api/issues",
+    "sources": "https://github.com/PatchworkMC/patchwork-api"
+  },
+  "custom": {
+    "modmenu:api": true
+  }
+}
