@@ -18,8 +18,10 @@
  */
 
 import net.fabricmc.lorenztiny.TinyMappingFormat
+import org.cadixdev.bombe.type.ObjectType
+import org.cadixdev.bombe.type.signature.FieldSignature
 import org.cadixdev.lorenz.MappingSet
-import org.cadixdev.lorenz.io.MappingFormats
+import org.cadixdev.lorenz.io.srg.tsrg.TSrgMappingFormat
 import org.cadixdev.lorenz.model.ClassMapping
 import java.nio.file.FileSystems
 import java.nio.file.Files
@@ -78,8 +80,8 @@ repositories {
 }
 
 dependencies {
-    minecraft("net.minecraft", "minecraft", "1.14.4")
-    mappings(McpMappings("1.14.4", "snapshot", "20190719-1.14.3"))
+    minecraft("net.minecraft", "minecraft", "1.16.4")
+    mappings(McpMappings("1.16.4", "snapshot", "20201028-1.16.3"))
     modImplementation("net.fabricmc", "fabric-loader", "0.10.8")
 
     // Fabric-API
@@ -90,9 +92,34 @@ dependencies {
 
     val include = mutableSetOf<Dependency>()
 
-    // EventBus
-    include += implementation("net.patchworkmc", "patchwork-eventbus", "2.0.1", classifier = "all")
-    include += implementation("net.jodah", "typetools", "0.6.0")
+    // include += implementation("org.ow2.asm", "asm", "7.2")
+    // include += implementation("org.ow2.asm", "asm-commons", "7.2")
+    // include += implementation("org.ow2.asm", "asm-tree", "7.2")
+    // include += implementation("org.ow2.asm", "asm-util", "7.2")
+    // include += implementation("org.ow2.asm", "asm-analysis", "7.2")
+    include += implementation("cpw.mods", "modlauncher", "8.0.6")
+    include += implementation("cpw.mods", "grossjava9hacks", "1.3.+")
+    include += implementation("net.minecraftforge", "accesstransformers", "2.2.+", classifier = "shadowed")
+    include += implementation("net.minecraftforge", "eventbus", "3.0.+", classifier = "service")
+    include += implementation("net.minecraftforge", "forgespi", "3.2.+")
+    include += implementation("net.minecraftforge", "coremods", "3.0.+")
+    include += implementation("net.minecraftforge", "unsafe", "0.2.+")
+    include += implementation("com.electronwill.night-config", "core", "3.6.2")
+    include += implementation("com.electronwill.night-config", "toml", "3.6.2")
+    include += implementation("org.jline", "jline", "3.12.+")
+    include += implementation("org.apache.maven", "maven-artifact", "3.6.0")
+    include += implementation("net.jodah", "typetools", "0.8.+")
+    // include += implementation("org.apache.logging.log4j", "log4j-api", "2.11.2")
+    // include += implementation("org.apache.logging.log4j", "log4j-core", "2.11.2")
+    include += implementation("net.minecrell", "terminalconsoleappender", "1.2.+")
+    // include += implementation("net.sf.jopt-simple", "jopt-simple", "5.0.4")
+    // include += implementation("org.spongepowered", "mixin", "0.8.2")
+    // include += implementation("com.google.guava", "guava", "21.0")
+    // include += implementation("com.google.code.gson", "gson", "2.8.0")
+    // include += implementation("org.lwjgl", "lwjgl", "3.2.2")
+    // include += implementation("org.lwjgl", "lwjgl-glfw", "3.2.2")
+    // include += implementation("org.lwjgl", "lwjgl-opengl", "3.2.2")
+    // include += implementation("org.lwjgl", "lwjgl-stb", "3.2.2")
 
     // Patching
     include += modImplementation("com.github.Chocohead", "Fabric-ASM", "v2.1")
@@ -169,7 +196,6 @@ publishing {
             url = if (version.toString().endsWith("SNAPSHOT")) snapshotsRepoUrl else releasesRepoUrl
         }
     }
-
 }
 
 checkstyle {
@@ -245,7 +271,7 @@ class McpMappings(private val minecraft: String, private val channel: String, pr
             }
 
             val mcpConfig = FileSystems.newFileSystem(mcpConfigJar.toPath(), null as? ClassLoader?).use {
-                MappingFormats.TSRG.read(it.getPath("config", "joined.tsrg"))
+                TSrgMappingFormat().read(it.getPath("config", "joined.tsrg"))
             }
 
             val (fields, methods) = FileSystems.newFileSystem(mcpMappingsZip.toPath(), null as? ClassLoader?)
@@ -291,7 +317,25 @@ class McpMappings(private val minecraft: String, private val channel: String, pr
                         writer,
                         "intermediary",
                         "named"
-                    ).write(intermediary.merge(mcpConfig))
+                    ).write(intermediary.merge(mcpConfig).apply {
+                        // ITS LITERALLY ONE FUCKING FIELD. CHECK IT.
+
+                        iterate { c ->
+                            for (fieldMapping in c.fieldMappings) {
+                                if (!fieldMapping.signature.type.isPresent) {
+                                    FieldSignature::class.java.getDeclaredField("type").apply {
+                                        this::class.java.getDeclaredField("modifiers").also { m ->
+                                            m.isAccessible = true
+                                            m.set(this, 2)
+                                        }
+
+                                        isAccessible = true
+                                        set(fieldMapping.signature, ObjectType("CONCERN"))
+                                    }
+                                }
+                            }
+                        }
+                    })
                 }
             }
         }
