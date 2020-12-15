@@ -43,7 +43,7 @@ public interface CrabworkEarlyRiser {
 				Path file = path.relativize(f);
 				String name = file.toString().replace(File.separatorChar, '/');
 
-				if (name.endsWith(".class") && name.startsWith("net/minecraft/")) {
+				if (name.endsWith(".class") && (name.startsWith("net/minecraft/") || name.startsWith("com/mojang/"))) {
 					ClassNode patch = new ClassNode();
 					byte[] patchBytes = Files.readAllBytes(f);
 					new ClassReader(patchBytes).accept(patch, 0);
