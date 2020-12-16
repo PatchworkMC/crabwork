@@ -34,6 +34,7 @@ import org.objectweb.asm.tree.MethodNode;
 class CrabworkPatcher {
 	private static final String ADD_IF_NOT_PRESENT = "Lio/github/fukkitmc/fukkit/asm/AddIfNotPresent;";
 	private static final String FINAL = "Lio/github/fukkitmc/fukkit/asm/Final;";
+	private static final String MERGE_CLASS_INITIALIZER = "Lio/github/fukkitmc/fukkit/asm/MergeClassInitializer;";
 	private static final String REMOVE = "Lio/github/fukkitmc/fukkit/asm/Remove;";
 	private static final String RENAME = "Lio/github/fukkitmc/fukkit/asm/Rename;";
 	private static final String SHADOW = "Lio/github/fukkitmc/fukkit/asm/Shadow;";
@@ -128,7 +129,7 @@ class CrabworkPatcher {
 
 		// Step 6 - Merge methods
 		for (MethodNode method : patch.methods) {
-			if (!method.name.equals("<clinit>")) {
+			if (!method.name.equals("<clinit>") || has(MERGE_CLASS_INITIALIZER, patch.visibleAnnotations)) {
 				removeMethod(original, method.name, method.desc);
 
 				Rename rename = findRename(method.visibleAnnotations);
