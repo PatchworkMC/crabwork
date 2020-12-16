@@ -4,42 +4,44 @@ import net.patchworkmc.crabwork.asm.Final;
 import net.patchworkmc.crabwork.asm.Shadow;
 
 public class Attribute extends net.minecraftforge.registries.ForgeRegistryEntry<Attribute> {
-    @Shadow
-    @Final
-    private double defaultValue;
-    @Shadow
-    private boolean shouldWatch;
-    @Shadow
-    @Final
-    private String attributeName;
+	@Shadow
+	@Final
+	private final double defaultValue;
 
-    @Shadow
-    protected Attribute(String attributeName, double defaultValue) {
-        throw new UnsupportedOperationException();
-    }
+	@Shadow
+	private final boolean shouldWatch;
 
-    @Shadow
-    public double getDefaultValue() {
-        throw new UnsupportedOperationException();
-    }
+	@Shadow
+	@Final
+	private final String attributeName;
 
-    @Shadow
-    public boolean getShouldWatch() {
-        throw new UnsupportedOperationException();
-    }
+	@Shadow
+	protected Attribute(String attributeName, double defaultValue) {
+		throw new UnsupportedOperationException();
+	}
 
-    @Shadow
-    public Attribute setShouldWatch(boolean watch) {
-        throw new UnsupportedOperationException();
-    }
+	@Shadow
+	public double getDefaultValue() {
+		throw new UnsupportedOperationException();
+	}
 
-    @Shadow
-    public double clampValue(double value) {
-        throw new UnsupportedOperationException();
-    }
+	@Shadow
+	public boolean getShouldWatch() {
+		throw new UnsupportedOperationException();
+	}
 
-    @Shadow
-    public String getAttributeName() {
-        throw new UnsupportedOperationException();
-    }
+	@Shadow
+	public Attribute setShouldWatch(boolean watch) {
+		throw new UnsupportedOperationException();
+	}
+
+	@Shadow
+	public double clampValue(double value) {
+		throw new UnsupportedOperationException();
+	}
+
+	@Shadow
+	public String getAttributeName() {
+		throw new UnsupportedOperationException();
+	}
 }

@@ -36,54 +36,70 @@ public final class Biome extends net.minecraftforge.registries.ForgeRegistryEntr
 	@Shadow
 	@Final
 	public static Logger LOGGER;
+
 	@Shadow
 	@Final
 	public static Codec<Biome> CODEC;
+
 	@Shadow
 	@Final
 	public static Codec<Biome> PACKET_CODEC;
+
 	@Shadow
 	@Final
 	public static Codec<Supplier<Biome>> BIOME_CODEC;
+
 	@Shadow
 	@Final
 	public static Codec<List<Supplier<Biome>>> BIOMES_CODEC;
-	@Shadow
-	@Final
-	private Map<Integer, List<Structure<?>>> biomeStructures;
-	@Shadow
-	@Final
-	private static PerlinNoiseGenerator TEMPERATURE_NOISE;
-	@Shadow
-	@Final
-	private static PerlinNoiseGenerator FROZEN_TEMPERATURE_NOISE;
+
 	@Shadow
 	@Final
 	public static PerlinNoiseGenerator INFO_NOISE;
+
 	@Shadow
 	@Final
-	private Climate climate;
+	private static PerlinNoiseGenerator TEMPERATURE_NOISE;
+
 	@Shadow
 	@Final
-	private BiomeGenerationSettings biomeGenerationSettings;
+	private static PerlinNoiseGenerator FROZEN_TEMPERATURE_NOISE;
+
 	@Shadow
 	@Final
-	private MobSpawnInfo mobSpawnInfo;
+	private final Map<Integer, List<Structure<?>>> biomeStructures;
+
 	@Shadow
 	@Final
-	private float depth;
+	private final Climate climate;
+
 	@Shadow
 	@Final
-	private float scale;
+	private final BiomeGenerationSettings biomeGenerationSettings;
+
 	@Shadow
 	@Final
-	private Category category;
+	private final MobSpawnInfo mobSpawnInfo;
+
 	@Shadow
 	@Final
-	private BiomeAmbience effects;
+	private final float depth;
+
 	@Shadow
 	@Final
-	private ThreadLocal<Long2FloatLinkedOpenHashMap> temperatureCache;
+	private final float scale;
+
+	@Shadow
+	@Final
+	private final Category category;
+
+	@Shadow
+	@Final
+	private final BiomeAmbience effects;
+
+	@Shadow
+	@Final
+	private final ThreadLocal<Long2FloatLinkedOpenHashMap> temperatureCache;
 
 	@Shadow
 	private Biome(Climate climate, Category category, float depth, float scale, BiomeAmbience effects, BiomeGenerationSettings biomeGenerationSettings, MobSpawnInfo mobSpawnInfo) {
@@ -259,25 +275,170 @@ public final class Biome extends net.minecraftforge.registries.ForgeRegistryEntr
 		throw new UnsupportedOperationException();
 	}
 
+	public enum Category implements IStringSerializable {
+		NONE("none"),
+		TAIGA("taiga"),
+		EXTREME_HILLS("extreme_hills"),
+		JUNGLE("jungle"),
+		MESA("mesa"),
+		PLAINS("plains"),
+		SAVANNA("savanna"),
+		ICY("icy"),
+		THEEND("the_end"),
+		BEACH("beach"),
+		FOREST("forest"),
+		OCEAN("ocean"),
+		DESERT("desert"),
+		RIVER("river"),
+		SWAMP("swamp"),
+		MUSHROOM("mushroom"),
+		NETHER("nether");
+
+		@Shadow
+		@Final
+		public static Codec<Category> CODEC;
+
+		@Shadow
+		@Final
+		private static Map<String, Category> BY_NAME;
+
+		@Shadow
+		@Final
+		private final String name;
+
+		@Shadow
+		Category(String name) {
+			throw new UnsupportedOperationException();
+		}
+
+		@Shadow
+		public static Category byName(String name) {
+			throw new UnsupportedOperationException();
+		}
+
+		@Shadow
+		public String getName() {
+			throw new UnsupportedOperationException();
+		}
+
+		@Shadow
+		public String getString() {
+			throw new UnsupportedOperationException();
+		}
+	}
+
+	public enum RainType implements IStringSerializable {
+		NONE("none"),
+		RAIN("rain"),
+		SNOW("snow");
+
+		@Shadow
+		@Final
+		public static Codec<RainType> CODEC;
+
+		@Shadow
+		@Final
+		private static Map<String, RainType> BY_NAME;
+
+		@Shadow
+		@Final
+		private final String name;
+
+		@Shadow
+		RainType(String name) {
+			throw new UnsupportedOperationException();
+		}
+
+		@Shadow
+		public static RainType getRainType(String name) {
+			throw new UnsupportedOperationException();
+		}
+
+		@Shadow
+		public String getName() {
+			throw new UnsupportedOperationException();
+		}
+
+		@Shadow
+		public String getString() {
+			throw new UnsupportedOperationException();
+		}
+	}
+
+	public enum TemperatureModifier implements IStringSerializable {
+		NONE("none") {
+			@Shadow
+			public float getTemperatureAtPosition(BlockPos pos, float temperature) {
+				throw new UnsupportedOperationException();
+			}
+		},
+		FROZEN("frozen") {
+			@Shadow
+			public float getTemperatureAtPosition(BlockPos pos, float temperature) {
+				throw new UnsupportedOperationException();
+			}
+		};
+
+		@Shadow
+		@Final
+		public static Codec<TemperatureModifier> CODEC;
+
+		@Shadow
+		@Final
+		private static Map<String, TemperatureModifier> NAME_TO_MODIFIER_MAP;
+
+		@Shadow
+		@Final
+		private final String name;
+
+		@Shadow
+		TemperatureModifier(String name) {
+			throw new UnsupportedOperationException();
+		}
+
+		@Shadow
+		public static TemperatureModifier byName(String name) {
+			throw new UnsupportedOperationException();
+		}
+
+		@Shadow
+		public abstract float getTemperatureAtPosition(BlockPos pos, float temperature);
+
+		@Shadow
+		public String getName() {
+			throw new UnsupportedOperationException();
+		}
+
+		@Shadow
+		public String getString() {
+			throw new UnsupportedOperationException();
+		}
+	}
+
 	public static class Attributes {
 		@Shadow
 		@Final
 		public static Codec<Attributes> CODEC;
+
 		@Shadow
 		@Final
-		private float temperature;
+		private final float temperature;
+
 		@Shadow
 		@Final
-		private float humidity;
+		private final float humidity;
+
 		@Shadow
 		@Final
-		private float altitude;
+		private final float altitude;
+
 		@Shadow
 		@Final
-		private float weirdness;
+		private final float weirdness;
+
 		@Shadow
 		@Final
-		private float offset;
+		private final float offset;
 
 		@Shadow
 		public Attributes(float temperature, float humidity, float altitude, float weirdness, float offset) {
@@ -304,29 +465,38 @@ public final class Biome extends net.minecraftforge.registries.ForgeRegistryEntr
 		@Shadow
 		@Nullable
 		private RainType precipitation;
+
 		@Shadow
 		@Nullable
 		private Category category;
+
 		@Shadow
 		@Nullable
 		private Float depth;
+
 		@Shadow
 		@Nullable
 		private Float scale;
+
 		@Shadow
 		@Nullable
 		private Float temperature;
+
 		@Shadow
 		private TemperatureModifier temperatureModifier;
+
 		@Shadow
 		@Nullable
 		private Float downfall;
+
 		@Shadow
 		@Nullable
 		private BiomeAmbience effects;
+
 		@Shadow
 		@Nullable
 		private MobSpawnInfo mobSpawnSettings;
+
 		@Shadow
 		@Nullable
 		private BiomeGenerationSettings generationSettings;
@@ -392,159 +562,29 @@ public final class Biome extends net.minecraftforge.registries.ForgeRegistryEntr
 		}
 	}
 
-	public static enum Category implements IStringSerializable {
-		NONE("none"),
-		TAIGA("taiga"),
-		EXTREME_HILLS("extreme_hills"),
-		JUNGLE("jungle"),
-		MESA("mesa"),
-		PLAINS("plains"),
-		SAVANNA("savanna"),
-		ICY("icy"),
-		THEEND("the_end"),
-		BEACH("beach"),
-		FOREST("forest"),
-		OCEAN("ocean"),
-		DESERT("desert"),
-		RIVER("river"),
-		SWAMP("swamp"),
-		MUSHROOM("mushroom"),
-		NETHER("nether");
-
-		@Shadow
-		@Final
-		public static Codec<Category> CODEC;
-		@Shadow
-		@Final
-		private static Map<String, Category> BY_NAME;
-		@Shadow
-		@Final
-		private String name;
-
-		@Shadow
-		private Category(String name) {
-			throw new UnsupportedOperationException();
-		}
-
-		@Shadow
-		public String getName() {
-			throw new UnsupportedOperationException();
-		}
-
-		@Shadow
-		public static Category byName(String name) {
-			throw new UnsupportedOperationException();
-		}
-
-		@Shadow
-		public String getString() {
-			throw new UnsupportedOperationException();
-		}
-	}
-
 	public static class Climate {
 		@Shadow
 		@Final
 		public static MapCodec<Climate> CODEC;
+
 		@Shadow
 		@Final
 		public RainType precipitation;
+
 		@Shadow
 		@Final
 		public float temperature;
+
 		@Shadow
 		@Final
 		public TemperatureModifier temperatureModifier;
+
 		@Shadow
 		@Final
 		public float downfall;
 
 		@Shadow
 		public Climate(RainType precipitation, float temperature, TemperatureModifier temperatureModifier, float downfall) {
-			throw new UnsupportedOperationException();
-		}
-	}
-
-	public static enum RainType implements IStringSerializable {
-		NONE("none"),
-		RAIN("rain"),
-		SNOW("snow");
-
-		@Shadow
-		@Final
-		public static Codec<RainType> CODEC;
-		@Shadow
-		@Final
-		private static Map<String, RainType> BY_NAME;
-		@Shadow
-		@Final
-		private String name;
-
-		@Shadow
-		private RainType(String name) {
-			throw new UnsupportedOperationException();
-		}
-
-		@Shadow
-		public String getName() {
-			throw new UnsupportedOperationException();
-		}
-
-		@Shadow
-		public static RainType getRainType(String name) {
-			throw new UnsupportedOperationException();
-		}
-
-		@Shadow
-		public String getString() {
-			throw new UnsupportedOperationException();
-		}
-	}
-
-	public static enum TemperatureModifier implements IStringSerializable {
-		NONE("none") {
-			@Shadow
-			public float getTemperatureAtPosition(BlockPos pos, float temperature) {
-				throw new UnsupportedOperationException();
-			}
-		},
-		FROZEN("frozen") {
-			@Shadow
-			public float getTemperatureAtPosition(BlockPos pos, float temperature) {
-				throw new UnsupportedOperationException();
-			}
-		};
-
-		@Shadow
-		@Final
-		private String name;
-		@Shadow
-		@Final
-		public static Codec<TemperatureModifier> CODEC;
-		@Shadow
-		@Final
-		private static Map<String, TemperatureModifier> NAME_TO_MODIFIER_MAP;
-
-		@Shadow
-		public abstract float getTemperatureAtPosition(BlockPos pos, float temperature);
-
-		@Shadow
-		private TemperatureModifier(String name) {
-			throw new UnsupportedOperationException();
-		}
-
-		@Shadow
-		public String getName() {
-			throw new UnsupportedOperationException();
-		}
-
-		@Shadow
-		public String getString() {
-			throw new UnsupportedOperationException();
-		}
-
-		@Shadow
-		public static TemperatureModifier byName(String name) {
 			throw new UnsupportedOperationException();
 		}
 	}

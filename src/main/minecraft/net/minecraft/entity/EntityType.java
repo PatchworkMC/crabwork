@@ -1,17 +1,17 @@
 package net.minecraft.entity;
 
-import com.google.common.collect.ImmutableSet;
-
 import java.util.Optional;
-import java.util.UUID;
 import java.util.function.Function;
-import java.util.stream.Stream;
+
 import javax.annotation.Nullable;
+
+import com.google.common.collect.ImmutableSet;
+import net.minecraftforge.api.distmarker.Dist;
+import net.minecraftforge.api.distmarker.OnlyIn;
+import org.apache.logging.log4j.Logger;
 
 import net.minecraft.block.Block;
 import net.minecraft.block.BlockState;
-import net.minecraft.block.Blocks;
-import net.minecraft.block.CampfireBlock;
 import net.minecraft.entity.boss.WitherEntity;
 import net.minecraft.entity.boss.dragon.EnderDragonEntity;
 import net.minecraft.entity.effect.LightningBoltEntity;
@@ -121,749 +121,872 @@ import net.minecraft.entity.projectile.TridentEntity;
 import net.minecraft.entity.projectile.WitherSkullEntity;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.CompoundNBT;
-import net.minecraft.nbt.ListNBT;
-import net.minecraft.server.MinecraftServer;
-import net.minecraft.tags.BlockTags;
 import net.minecraft.tags.ITag;
-import net.minecraft.util.Direction;
 import net.minecraft.util.ResourceLocation;
-import net.minecraft.util.Util;
-import net.minecraft.util.datafix.TypeReferences;
 import net.minecraft.util.math.AxisAlignedBB;
 import net.minecraft.util.math.BlockPos;
-import net.minecraft.util.math.MathHelper;
-import net.minecraft.util.math.shapes.VoxelShape;
-import net.minecraft.util.math.shapes.VoxelShapes;
-import net.minecraft.util.registry.Registry;
 import net.minecraft.util.text.ITextComponent;
-import net.minecraft.util.text.TranslationTextComponent;
 import net.minecraft.world.IWorldReader;
 import net.minecraft.world.World;
 import net.minecraft.world.server.ServerWorld;
-import net.minecraftforge.api.distmarker.Dist;
-import net.minecraftforge.api.distmarker.OnlyIn;
+
 import net.patchworkmc.crabwork.asm.Final;
 import net.patchworkmc.crabwork.asm.Shadow;
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
 
 public class EntityType<T extends Entity> extends net.minecraftforge.registries.ForgeRegistryEntry<EntityType<?>> {
-    @Shadow
-    @Final
-    public static EntityType<AreaEffectCloudEntity> AREA_EFFECT_CLOUD;
-    @Shadow
-    @Final
-    public static EntityType<ArmorStandEntity> ARMOR_STAND;
-    @Shadow
-    @Final
-    public static EntityType<ArrowEntity> ARROW;
-    @Shadow
-    @Final
-    public static EntityType<BatEntity> BAT;
-    @Shadow
-    @Final
-    public static EntityType<BeeEntity> BEE;
-    @Shadow
-    @Final
-    public static EntityType<BlazeEntity> BLAZE;
-    @Shadow
-    @Final
-    public static EntityType<BoatEntity> BOAT;
-    @Shadow
-    @Final
-    public static EntityType<CatEntity> CAT;
-    @Shadow
-    @Final
-    public static EntityType<CaveSpiderEntity> CAVE_SPIDER;
-    @Shadow
-    @Final
-    public static EntityType<ChickenEntity> CHICKEN;
-    @Shadow
-    @Final
-    public static EntityType<CodEntity> COD;
-    @Shadow
-    @Final
-    public static EntityType<CowEntity> COW;
-    @Shadow
-    @Final
-    public static EntityType<CreeperEntity> CREEPER;
-    @Shadow
-    @Final
-    public static EntityType<DolphinEntity> DOLPHIN;
-    @Shadow
-    @Final
-    public static EntityType<DonkeyEntity> DONKEY;
-    @Shadow
-    @Final
-    public static EntityType<DragonFireballEntity> DRAGON_FIREBALL;
-    @Shadow
-    @Final
-    public static EntityType<DrownedEntity> DROWNED;
-    @Shadow
-    @Final
-    public static EntityType<ElderGuardianEntity> ELDER_GUARDIAN;
-    @Shadow
-    @Final
-    public static EntityType<EnderCrystalEntity> END_CRYSTAL;
-    @Shadow
-    @Final
-    public static EntityType<EnderDragonEntity> ENDER_DRAGON;
-    @Shadow
-    @Final
-    public static EntityType<EndermanEntity> ENDERMAN;
-    @Shadow
-    @Final
-    public static EntityType<EndermiteEntity> ENDERMITE;
-    @Shadow
-    @Final
-    public static EntityType<EvokerEntity> EVOKER;
-    @Shadow
-    @Final
-    public static EntityType<EvokerFangsEntity> EVOKER_FANGS;
-    @Shadow
-    @Final
-    public static EntityType<ExperienceOrbEntity> EXPERIENCE_ORB;
-    @Shadow
-    @Final
-    public static EntityType<EyeOfEnderEntity> EYE_OF_ENDER;
-    @Shadow
-    @Final
-    public static EntityType<FallingBlockEntity> FALLING_BLOCK;
-    @Shadow
-    @Final
-    public static EntityType<FireworkRocketEntity> FIREWORK_ROCKET;
-    @Shadow
-    @Final
-    public static EntityType<FoxEntity> FOX;
-    @Shadow
-    @Final
-    public static EntityType<GhastEntity> GHAST;
-    @Shadow
-    @Final
-    public static EntityType<GiantEntity> GIANT;
-    @Shadow
-    @Final
-    public static EntityType<GuardianEntity> GUARDIAN;
-    @Shadow
-    @Final
-    public static EntityType<HoglinEntity> HOGLIN;
-    @Shadow
-    @Final
-    public static EntityType<HorseEntity> HORSE;
-    @Shadow
-    @Final
-    public static EntityType<HuskEntity> HUSK;
-    @Shadow
-    @Final
-    public static EntityType<IllusionerEntity> ILLUSIONER;
-    @Shadow
-    @Final
-    public static EntityType<IronGolemEntity> IRON_GOLEM;
-    @Shadow
-    @Final
-    public static EntityType<ItemEntity> ITEM;
-    @Shadow
-    @Final
-    public static EntityType<ItemFrameEntity> ITEM_FRAME;
-    @Shadow
-    @Final
-    public static EntityType<FireballEntity> FIREBALL;
-    @Shadow
-    @Final
-    public static EntityType<LeashKnotEntity> LEASH_KNOT;
-    @Shadow
-    @Final
-    public static EntityType<LightningBoltEntity> LIGHTNING_BOLT;
-    @Shadow
-    @Final
-    public static EntityType<LlamaEntity> LLAMA;
-    @Shadow
-    @Final
-    public static EntityType<LlamaSpitEntity> LLAMA_SPIT;
-    @Shadow
-    @Final
-    public static EntityType<MagmaCubeEntity> MAGMA_CUBE;
-    @Shadow
-    @Final
-    public static EntityType<MinecartEntity> MINECART;
-    @Shadow
-    @Final
-    public static EntityType<ChestMinecartEntity> CHEST_MINECART;
-    @Shadow
-    @Final
-    public static EntityType<CommandBlockMinecartEntity> COMMAND_BLOCK_MINECART;
-    @Shadow
-    @Final
-    public static EntityType<FurnaceMinecartEntity> FURNACE_MINECART;
-    @Shadow
-    @Final
-    public static EntityType<HopperMinecartEntity> HOPPER_MINECART;
-    @Shadow
-    @Final
-    public static EntityType<SpawnerMinecartEntity> SPAWNER_MINECART;
-    @Shadow
-    @Final
-    public static EntityType<TNTMinecartEntity> TNT_MINECART;
-    @Shadow
-    @Final
-    public static EntityType<MuleEntity> MULE;
-    @Shadow
-    @Final
-    public static EntityType<MooshroomEntity> MOOSHROOM;
-    @Shadow
-    @Final
-    public static EntityType<OcelotEntity> OCELOT;
-    @Shadow
-    @Final
-    public static EntityType<PaintingEntity> PAINTING;
-    @Shadow
-    @Final
-    public static EntityType<PandaEntity> PANDA;
-    @Shadow
-    @Final
-    public static EntityType<ParrotEntity> PARROT;
-    @Shadow
-    @Final
-    public static EntityType<PhantomEntity> PHANTOM;
-    @Shadow
-    @Final
-    public static EntityType<PigEntity> PIG;
-    @Shadow
-    @Final
-    public static EntityType<PiglinEntity> PIGLIN;
-    @Shadow
-    @Final
-    public static EntityType<PiglinBruteEntity> field_242287_aj;
-    @Shadow
-    @Final
-    public static EntityType<PillagerEntity> PILLAGER;
-    @Shadow
-    @Final
-    public static EntityType<PolarBearEntity> POLAR_BEAR;
-    @Shadow
-    @Final
-    public static EntityType<TNTEntity> TNT;
-    @Shadow
-    @Final
-    public static EntityType<PufferfishEntity> PUFFERFISH;
-    @Shadow
-    @Final
-    public static EntityType<RabbitEntity> RABBIT;
-    @Shadow
-    @Final
-    public static EntityType<RavagerEntity> RAVAGER;
-    @Shadow
-    @Final
-    public static EntityType<SalmonEntity> SALMON;
-    @Shadow
-    @Final
-    public static EntityType<SheepEntity> SHEEP;
-    @Shadow
-    @Final
-    public static EntityType<ShulkerEntity> SHULKER;
-    @Shadow
-    @Final
-    public static EntityType<ShulkerBulletEntity> SHULKER_BULLET;
-    @Shadow
-    @Final
-    public static EntityType<SilverfishEntity> SILVERFISH;
-    @Shadow
-    @Final
-    public static EntityType<SkeletonEntity> SKELETON;
-    @Shadow
-    @Final
-    public static EntityType<SkeletonHorseEntity> SKELETON_HORSE;
-    @Shadow
-    @Final
-    public static EntityType<SlimeEntity> SLIME;
-    @Shadow
-    @Final
-    public static EntityType<SmallFireballEntity> SMALL_FIREBALL;
-    @Shadow
-    @Final
-    public static EntityType<SnowGolemEntity> SNOW_GOLEM;
-    @Shadow
-    @Final
-    public static EntityType<SnowballEntity> SNOWBALL;
-    @Shadow
-    @Final
-    public static EntityType<SpectralArrowEntity> SPECTRAL_ARROW;
-    @Shadow
-    @Final
-    public static EntityType<SpiderEntity> SPIDER;
-    @Shadow
-    @Final
-    public static EntityType<SquidEntity> SQUID;
-    @Shadow
-    @Final
-    public static EntityType<StrayEntity> STRAY;
-    @Shadow
-    @Final
-    public static EntityType<StriderEntity> STRIDER;
-    @Shadow
-    @Final
-    public static EntityType<EggEntity> EGG;
-    @Shadow
-    @Final
-    public static EntityType<EnderPearlEntity> ENDER_PEARL;
-    @Shadow
-    @Final
-    public static EntityType<ExperienceBottleEntity> EXPERIENCE_BOTTLE;
-    @Shadow
-    @Final
-    public static EntityType<PotionEntity> POTION;
-    @Shadow
-    @Final
-    public static EntityType<TridentEntity> TRIDENT;
-    @Shadow
-    @Final
-    public static EntityType<TraderLlamaEntity> TRADER_LLAMA;
-    @Shadow
-    @Final
-    public static EntityType<TropicalFishEntity> TROPICAL_FISH;
-    @Shadow
-    @Final
-    public static EntityType<TurtleEntity> TURTLE;
-    @Shadow
-    @Final
-    public static EntityType<VexEntity> VEX;
-    @Shadow
-    @Final
-    public static EntityType<VillagerEntity> VILLAGER;
-    @Shadow
-    @Final
-    public static EntityType<VindicatorEntity> VINDICATOR;
-    @Shadow
-    @Final
-    public static EntityType<WanderingTraderEntity> WANDERING_TRADER;
-    @Shadow
-    @Final
-    public static EntityType<WitchEntity> WITCH;
-    @Shadow
-    @Final
-    public static EntityType<WitherEntity> WITHER;
-    @Shadow
-    @Final
-    public static EntityType<WitherSkeletonEntity> WITHER_SKELETON;
-    @Shadow
-    @Final
-    public static EntityType<WitherSkullEntity> WITHER_SKULL;
-    @Shadow
-    @Final
-    public static EntityType<WolfEntity> WOLF;
-    @Shadow
-    @Final
-    public static EntityType<ZoglinEntity> ZOGLIN;
-    @Shadow
-    @Final
-    public static EntityType<ZombieEntity> ZOMBIE;
-    @Shadow
-    @Final
-    public static EntityType<ZombieHorseEntity> ZOMBIE_HORSE;
-    @Shadow
-    @Final
-    public static EntityType<ZombieVillagerEntity> ZOMBIE_VILLAGER;
-    @Shadow
-    @Final
-    public static EntityType<ZombifiedPiglinEntity> ZOMBIFIED_PIGLIN;
-    @Shadow
-    @Final
-    public static EntityType<PlayerEntity> PLAYER;
-    @Shadow
-    @Final
-    public static EntityType<FishingBobberEntity> FISHING_BOBBER;
-    @Shadow
-    @Final
-    private static Logger LOGGER;
-    @Shadow
-    @Final
-    private EntityType.IFactory<T> factory;
-    @Shadow
-    @Final
-    private EntityClassification classification;
-    @Shadow
-    @Final
-    private ImmutableSet<Block> field_233593_bg_;
-    @Shadow
-    @Final
-    private boolean serializable;
-    @Shadow
-    @Final
-    private boolean summonable;
-    @Shadow
-    @Final
-    private boolean immuneToFire;
-    @Shadow
-    @Final
-    private boolean field_225438_be;
-    @Shadow
-    @Final
-    private int defaultTrackingRange;
-    @Shadow
-    @Final
-    private int defaultUpdateInterval;
-    @Shadow
-    @Nullable
-    private String translationKey;
-    @Shadow
-    @Nullable
-    private ITextComponent name;
-    @Shadow
-    @Nullable
-    private ResourceLocation lootTable;
-    @Shadow
-    @Final
-    private EntitySize size;
+	@Shadow
+	@Final
+	public static EntityType<AreaEffectCloudEntity> AREA_EFFECT_CLOUD;
 
-    @Shadow
-    @Final
-    private java.util.function.Predicate<EntityType<?>> velocityUpdateSupplier;
-    @Shadow
-    @Final
-    private java.util.function.ToIntFunction<EntityType<?>> trackingRangeSupplier;
-    @Shadow
-    @Final
-    private java.util.function.ToIntFunction<EntityType<?>> updateIntervalSupplier;
-    @Shadow
-    @Final
-    private java.util.function.BiFunction<net.minecraftforge.fml.network.FMLPlayMessages.SpawnEntity, World, T> customClientFactory;
-    @Shadow
-    @Final
-    private net.minecraftforge.common.util.ReverseTagWrapper<EntityType<?>> reverseTags;
+	@Shadow
+	@Final
+	public static EntityType<ArmorStandEntity> ARMOR_STAND;
 
-    @Shadow
-    public EntityType(EntityType.IFactory<T> factory, EntityClassification classification, boolean p_i231489_3_, boolean summonable, boolean immuneToFire, boolean p_i231489_6_, ImmutableSet<Block> p_i231489_7_, EntitySize size, int trackingRange, int updateInterval) {
-        throw new UnsupportedOperationException();
-    }
+	@Shadow
+	@Final
+	public static EntityType<ArrowEntity> ARROW;
 
-    @Shadow
-    public EntityType(EntityType.IFactory<T> factory, EntityClassification classification, boolean p_i231489_3_, boolean summonable, boolean immuneToFire, boolean p_i231489_6_, ImmutableSet<Block> p_i231489_7_, EntitySize size, int trackingRange, int updateInterval, final java.util.function.Predicate<EntityType<?>> velocityUpdateSupplier, final java.util.function.ToIntFunction<EntityType<?>> trackingRangeSupplier, final java.util.function.ToIntFunction<EntityType<?>> updateIntervalSupplier, final java.util.function.BiFunction<net.minecraftforge.fml.network.FMLPlayMessages.SpawnEntity, World, T> customClientFactory) {
-        throw new UnsupportedOperationException();
-    }
+	@Shadow
+	@Final
+	public static EntityType<BatEntity> BAT;
 
-    @Shadow
-    private static <T extends Entity> EntityType<T> register(String key, EntityType.Builder<T> builder) {
-        throw new UnsupportedOperationException();
-    }
+	@Shadow
+	@Final
+	public static EntityType<BeeEntity> BEE;
 
-    @Shadow
-    public static ResourceLocation getKey(EntityType<?> entityTypeIn) {
-        throw new UnsupportedOperationException();
-    }
+	@Shadow
+	@Final
+	public static EntityType<BlazeEntity> BLAZE;
 
-    @Shadow
-    public static Optional<EntityType<?>> byKey(String key) {
-        throw new UnsupportedOperationException();
-    }
+	@Shadow
+	@Final
+	public static EntityType<BoatEntity> BOAT;
 
-    @Shadow
-    protected static double func_208051_a(IWorldReader worldReader, BlockPos pos, boolean p_208051_2_, AxisAlignedBB p_208051_3_) {
-        throw new UnsupportedOperationException();
-    }
+	@Shadow
+	@Final
+	public static EntityType<CatEntity> CAT;
 
-    @Shadow
-    public static void applyItemNBT(World worldIn, @Nullable PlayerEntity player, @Nullable Entity spawnedEntity, @Nullable CompoundNBT itemNBT) {
-        throw new UnsupportedOperationException();
-    }
+	@Shadow
+	@Final
+	public static EntityType<CaveSpiderEntity> CAVE_SPIDER;
 
-    @Shadow
-    @Nullable
-    @OnlyIn(Dist.CLIENT)
-    public static Entity create(int id, World worldIn) {
-        throw new UnsupportedOperationException();
-    }
+	@Shadow
+	@Final
+	public static EntityType<ChickenEntity> CHICKEN;
 
-    @Shadow
-    public static Optional<Entity> loadEntityUnchecked(CompoundNBT compound, World worldIn) {
-        throw new UnsupportedOperationException();
-    }
+	@Shadow
+	@Final
+	public static EntityType<CodEntity> COD;
 
-    @Shadow
-    @Nullable
-    @OnlyIn(Dist.CLIENT)
-    private static Entity create(World worldIn, @Nullable EntityType<?> type) {
-        throw new UnsupportedOperationException();
-    }
+	@Shadow
+	@Final
+	public static EntityType<CowEntity> COW;
 
-    @Shadow
-    public static Optional<EntityType<?>> readEntityType(CompoundNBT compound) {
-        throw new UnsupportedOperationException();
-    }
+	@Shadow
+	@Final
+	public static EntityType<CreeperEntity> CREEPER;
 
-    @Shadow
-    @Nullable
-    public static Entity loadEntityAndExecute(CompoundNBT compound, World worldIn, Function<Entity, Entity> p_220335_2_) {
-        throw new UnsupportedOperationException();
-    }
+	@Shadow
+	@Final
+	public static EntityType<DolphinEntity> DOLPHIN;
 
-    @Shadow
-    private static Optional<Entity> loadEntity(CompoundNBT compound, World worldIn) {
-        throw new UnsupportedOperationException();
-    }
+	@Shadow
+	@Final
+	public static EntityType<DonkeyEntity> DONKEY;
 
-    @Shadow
-    @Nullable
-    public Entity spawn(ServerWorld worldIn, @Nullable ItemStack stack, @Nullable PlayerEntity playerIn, BlockPos pos, SpawnReason reason, boolean p_220331_6_, boolean p_220331_7_) {
-        throw new UnsupportedOperationException();
-    }
+	@Shadow
+	@Final
+	public static EntityType<DragonFireballEntity> DRAGON_FIREBALL;
 
-    @Shadow
-    @Nullable
-    public T spawn(ServerWorld worldIn, @Nullable CompoundNBT compound, @Nullable ITextComponent customName, @Nullable PlayerEntity playerIn, BlockPos pos, SpawnReason reason, boolean p_220342_7_, boolean p_220342_8_) {
-        throw new UnsupportedOperationException();
-    }
+	@Shadow
+	@Final
+	public static EntityType<DrownedEntity> DROWNED;
 
-    @Shadow
-    @Nullable
-    public T create(ServerWorld worldIn, @Nullable CompoundNBT compound, @Nullable ITextComponent customName, @Nullable PlayerEntity playerIn, BlockPos pos, SpawnReason reason, boolean p_220349_7_, boolean p_220349_8_) {
-        throw new UnsupportedOperationException();
-    }
+	@Shadow
+	@Final
+	public static EntityType<ElderGuardianEntity> ELDER_GUARDIAN;
 
-    @Shadow
-    public boolean isSerializable() {
-        throw new UnsupportedOperationException();
-    }
+	@Shadow
+	@Final
+	public static EntityType<EnderCrystalEntity> END_CRYSTAL;
 
-    @Shadow
-    public boolean isSummonable() {
-        throw new UnsupportedOperationException();
-    }
+	@Shadow
+	@Final
+	public static EntityType<EnderDragonEntity> ENDER_DRAGON;
 
-    @Shadow
-    public boolean isImmuneToFire() {
-        throw new UnsupportedOperationException();
-    }
+	@Shadow
+	@Final
+	public static EntityType<EndermanEntity> ENDERMAN;
 
-    @Shadow
-    public boolean func_225437_d() {
-        throw new UnsupportedOperationException();
-    }
+	@Shadow
+	@Final
+	public static EntityType<EndermiteEntity> ENDERMITE;
 
-    @Shadow
-    public EntityClassification getClassification() {
-        throw new UnsupportedOperationException();
-    }
+	@Shadow
+	@Final
+	public static EntityType<EvokerEntity> EVOKER;
 
-    @Shadow
-    public String getTranslationKey() {
-        throw new UnsupportedOperationException();
-    }
+	@Shadow
+	@Final
+	public static EntityType<EvokerFangsEntity> EVOKER_FANGS;
 
-    @Shadow
-    public ITextComponent getName() {
-        throw new UnsupportedOperationException();
-    }
+	@Shadow
+	@Final
+	public static EntityType<ExperienceOrbEntity> EXPERIENCE_ORB;
 
-    @Shadow
-    public String toString() {
-        throw new UnsupportedOperationException();
-    }
+	@Shadow
+	@Final
+	public static EntityType<EyeOfEnderEntity> EYE_OF_ENDER;
 
-    @Shadow
-    public ResourceLocation getLootTable() {
-        throw new UnsupportedOperationException();
-    }
+	@Shadow
+	@Final
+	public static EntityType<FallingBlockEntity> FALLING_BLOCK;
 
-    @Shadow
-    public float getWidth() {
-        throw new UnsupportedOperationException();
-    }
+	@Shadow
+	@Final
+	public static EntityType<FireworkRocketEntity> FIREWORK_ROCKET;
 
-    @Shadow
-    public float getHeight() {
-        throw new UnsupportedOperationException();
-    }
+	@Shadow
+	@Final
+	public static EntityType<FoxEntity> FOX;
 
-    @Shadow
-    @Nullable
-    public T create(World worldIn) {
-        throw new UnsupportedOperationException();
-    }
+	@Shadow
+	@Final
+	public static EntityType<GhastEntity> GHAST;
 
-    @Shadow
-    public AxisAlignedBB getBoundingBoxWithSizeApplied(double p_220328_1_, double p_220328_3_, double p_220328_5_) {
-        throw new UnsupportedOperationException();
-    }
+	@Shadow
+	@Final
+	public static EntityType<GiantEntity> GIANT;
 
-    @Shadow
-    public boolean func_233597_a_(BlockState p_233597_1_) {
-        throw new UnsupportedOperationException();
-    }
+	@Shadow
+	@Final
+	public static EntityType<GuardianEntity> GUARDIAN;
 
-    @Shadow
-    public EntitySize getSize() {
-        throw new UnsupportedOperationException();
-    }
+	@Shadow
+	@Final
+	public static EntityType<HoglinEntity> HOGLIN;
 
-    @Shadow
-    public int func_233602_m_() {
-        throw new UnsupportedOperationException();
-    }
+	@Shadow
+	@Final
+	public static EntityType<HorseEntity> HORSE;
 
-    @Shadow
-    private int defaultTrackingRangeSupplier() {
-        throw new UnsupportedOperationException();
-    }
+	@Shadow
+	@Final
+	public static EntityType<HuskEntity> HUSK;
 
-    @Shadow
-    public int getUpdateFrequency() {
-        throw new UnsupportedOperationException();
-    }
+	@Shadow
+	@Final
+	public static EntityType<IllusionerEntity> ILLUSIONER;
 
-    @Shadow
-    private int defaultUpdateIntervalSupplier() {
-        throw new UnsupportedOperationException();
-    }
+	@Shadow
+	@Final
+	public static EntityType<IronGolemEntity> IRON_GOLEM;
 
-    @Shadow
-    public boolean shouldSendVelocityUpdates() {
-        throw new UnsupportedOperationException();
-    }
+	@Shadow
+	@Final
+	public static EntityType<ItemEntity> ITEM;
 
-    @Shadow
-    private boolean defaultVelocitySupplier() {
-        throw new UnsupportedOperationException();
-    }
+	@Shadow
+	@Final
+	public static EntityType<ItemFrameEntity> ITEM_FRAME;
 
-    @Shadow
-    public boolean isContained(ITag<EntityType<?>> tagIn) {
-        throw new UnsupportedOperationException();
-    }
+	@Shadow
+	@Final
+	public static EntityType<FireballEntity> FIREBALL;
 
-    @Shadow
-    public T customClientSpawn(net.minecraftforge.fml.network.FMLPlayMessages.SpawnEntity packet, World world) {
-        throw new UnsupportedOperationException();
-    }
+	@Shadow
+	@Final
+	public static EntityType<LeashKnotEntity> LEASH_KNOT;
 
-    /**
-     * Retrieves a list of tags names this is known to be associated with.
-     * This should be used in favor of TagCollection.getOwningTags, as this caches the result and automatically updates when the TagCollection changes.
-     */
-    @Shadow
-    public java.util.Set<ResourceLocation> getTags() {
-        throw new UnsupportedOperationException();
-    }
+	@Shadow
+	@Final
+	public static EntityType<LightningBoltEntity> LIGHTNING_BOLT;
 
-    public interface IFactory<T extends Entity> {
-        @Shadow
-        T create(EntityType<T> p_create_1_, World p_create_2_);
-    }
+	@Shadow
+	@Final
+	public static EntityType<LlamaEntity> LLAMA;
 
-    public static class Builder<T extends Entity> {
-        @Shadow
-        @Final
-        private EntityType.IFactory<T> factory;
-        @Shadow
-        @Final
-        private EntityClassification classification;
-        @Shadow
-        private ImmutableSet<Block> field_233603_c_;
-        @Shadow
-        private boolean serializable;
-        @Shadow
-        private boolean summonable;
-        @Shadow
-        private boolean immuneToFire;
-        @Shadow
-        private boolean field_225436_f;
-        @Shadow
-        private int trackingRange;
-        @Shadow
-        private int field_233605_i_;
-        @Shadow
-        private EntitySize size;
+	@Shadow
+	@Final
+	public static EntityType<LlamaSpitEntity> LLAMA_SPIT;
 
-        @Shadow
-        private java.util.function.Predicate<EntityType<?>> velocityUpdateSupplier;
-        @Shadow
-        private java.util.function.ToIntFunction<EntityType<?>> trackingRangeSupplier;
-        @Shadow
-        private java.util.function.ToIntFunction<EntityType<?>> updateIntervalSupplier;
-        @Shadow
-        private java.util.function.BiFunction<net.minecraftforge.fml.network.FMLPlayMessages.SpawnEntity, World, T> customClientFactory;
+	@Shadow
+	@Final
+	public static EntityType<MagmaCubeEntity> MAGMA_CUBE;
 
-        @Shadow
-        private Builder(EntityType.IFactory<T> factoryIn, EntityClassification classificationIn) {
-            throw new UnsupportedOperationException();
-        }
+	@Shadow
+	@Final
+	public static EntityType<MinecartEntity> MINECART;
 
-        @Shadow
-        public static <T extends Entity> EntityType.Builder<T> create(EntityType.IFactory<T> factoryIn, EntityClassification classificationIn) {
-            throw new UnsupportedOperationException();
-        }
+	@Shadow
+	@Final
+	public static EntityType<ChestMinecartEntity> CHEST_MINECART;
 
-        @Shadow
-        public static <T extends Entity> EntityType.Builder<T> create(EntityClassification classificationIn) {
-            throw new UnsupportedOperationException();
-        }
+	@Shadow
+	@Final
+	public static EntityType<CommandBlockMinecartEntity> COMMAND_BLOCK_MINECART;
 
-        @Shadow
-        public EntityType.Builder<T> size(float width, float height) {
-            throw new UnsupportedOperationException();
-        }
+	@Shadow
+	@Final
+	public static EntityType<FurnaceMinecartEntity> FURNACE_MINECART;
 
-        @Shadow
-        public EntityType.Builder<T> disableSummoning() {
-            throw new UnsupportedOperationException();
-        }
+	@Shadow
+	@Final
+	public static EntityType<HopperMinecartEntity> HOPPER_MINECART;
 
-        @Shadow
-        public EntityType.Builder<T> disableSerialization() {
-            throw new UnsupportedOperationException();
-        }
+	@Shadow
+	@Final
+	public static EntityType<SpawnerMinecartEntity> SPAWNER_MINECART;
 
-        @Shadow
-        public EntityType.Builder<T> immuneToFire() {
-            throw new UnsupportedOperationException();
-        }
+	@Shadow
+	@Final
+	public static EntityType<TNTMinecartEntity> TNT_MINECART;
 
-        @Shadow
-        public EntityType.Builder<T> func_233607_a_(Block... p_233607_1_) {
-            throw new UnsupportedOperationException();
-        }
+	@Shadow
+	@Final
+	public static EntityType<MuleEntity> MULE;
 
-        @Shadow
-        public EntityType.Builder<T> func_225435_d() {
-            throw new UnsupportedOperationException();
-        }
+	@Shadow
+	@Final
+	public static EntityType<MooshroomEntity> MOOSHROOM;
 
-        @Shadow
-        public EntityType.Builder<T> trackingRange(int range) {
-            throw new UnsupportedOperationException();
-        }
+	@Shadow
+	@Final
+	public static EntityType<OcelotEntity> OCELOT;
 
-        @Shadow
-        public EntityType.Builder<T> func_233608_b_(int p_233608_1_) {
-            throw new UnsupportedOperationException();
-        }
+	@Shadow
+	@Final
+	public static EntityType<PaintingEntity> PAINTING;
 
-        @Shadow
-        public EntityType.Builder<T> setUpdateInterval(int interval) {
-            throw new UnsupportedOperationException();
-        }
+	@Shadow
+	@Final
+	public static EntityType<PandaEntity> PANDA;
 
-        @Shadow
-        public EntityType.Builder<T> setTrackingRange(int range) {
-            throw new UnsupportedOperationException();
-        }
+	@Shadow
+	@Final
+	public static EntityType<ParrotEntity> PARROT;
 
-        @Shadow
-        public EntityType.Builder<T> setShouldReceiveVelocityUpdates(boolean value) {
-            throw new UnsupportedOperationException();
-        }
+	@Shadow
+	@Final
+	public static EntityType<PhantomEntity> PHANTOM;
 
-        /**
-         * By default, entities are spawned clientside via {@link EntityType#create(World)}.
-         * If you need finer control over the spawning process, use this to get read access to the spawn packet.
-         */
-        @Shadow
-        public EntityType.Builder<T> setCustomClientFactory(java.util.function.BiFunction<net.minecraftforge.fml.network.FMLPlayMessages.SpawnEntity, World, T> customClientFactory) {
-            throw new UnsupportedOperationException();
-        }
+	@Shadow
+	@Final
+	public static EntityType<PigEntity> PIG;
 
-        @Shadow
-        public EntityType<T> build(String id) {
-            throw new UnsupportedOperationException();
-        }
-    }
+	@Shadow
+	@Final
+	public static EntityType<PiglinEntity> PIGLIN;
+
+	@Shadow
+	@Final
+	public static EntityType<PiglinBruteEntity> field_242287_aj;
+
+	@Shadow
+	@Final
+	public static EntityType<PillagerEntity> PILLAGER;
+
+	@Shadow
+	@Final
+	public static EntityType<PolarBearEntity> POLAR_BEAR;
+
+	@Shadow
+	@Final
+	public static EntityType<TNTEntity> TNT;
+
+	@Shadow
+	@Final
+	public static EntityType<PufferfishEntity> PUFFERFISH;
+
+	@Shadow
+	@Final
+	public static EntityType<RabbitEntity> RABBIT;
+
+	@Shadow
+	@Final
+	public static EntityType<RavagerEntity> RAVAGER;
+
+	@Shadow
+	@Final
+	public static EntityType<SalmonEntity> SALMON;
+
+	@Shadow
+	@Final
+	public static EntityType<SheepEntity> SHEEP;
+
+	@Shadow
+	@Final
+	public static EntityType<ShulkerEntity> SHULKER;
+
+	@Shadow
+	@Final
+	public static EntityType<ShulkerBulletEntity> SHULKER_BULLET;
+
+	@Shadow
+	@Final
+	public static EntityType<SilverfishEntity> SILVERFISH;
+
+	@Shadow
+	@Final
+	public static EntityType<SkeletonEntity> SKELETON;
+
+	@Shadow
+	@Final
+	public static EntityType<SkeletonHorseEntity> SKELETON_HORSE;
+
+	@Shadow
+	@Final
+	public static EntityType<SlimeEntity> SLIME;
+
+	@Shadow
+	@Final
+	public static EntityType<SmallFireballEntity> SMALL_FIREBALL;
+
+	@Shadow
+	@Final
+	public static EntityType<SnowGolemEntity> SNOW_GOLEM;
+
+	@Shadow
+	@Final
+	public static EntityType<SnowballEntity> SNOWBALL;
+
+	@Shadow
+	@Final
+	public static EntityType<SpectralArrowEntity> SPECTRAL_ARROW;
+
+	@Shadow
+	@Final
+	public static EntityType<SpiderEntity> SPIDER;
+
+	@Shadow
+	@Final
+	public static EntityType<SquidEntity> SQUID;
+
+	@Shadow
+	@Final
+	public static EntityType<StrayEntity> STRAY;
+
+	@Shadow
+	@Final
+	public static EntityType<StriderEntity> STRIDER;
+
+	@Shadow
+	@Final
+	public static EntityType<EggEntity> EGG;
+
+	@Shadow
+	@Final
+	public static EntityType<EnderPearlEntity> ENDER_PEARL;
+
+	@Shadow
+	@Final
+	public static EntityType<ExperienceBottleEntity> EXPERIENCE_BOTTLE;
+
+	@Shadow
+	@Final
+	public static EntityType<PotionEntity> POTION;
+
+	@Shadow
+	@Final
+	public static EntityType<TridentEntity> TRIDENT;
+
+	@Shadow
+	@Final
+	public static EntityType<TraderLlamaEntity> TRADER_LLAMA;
+
+	@Shadow
+	@Final
+	public static EntityType<TropicalFishEntity> TROPICAL_FISH;
+
+	@Shadow
+	@Final
+	public static EntityType<TurtleEntity> TURTLE;
+
+	@Shadow
+	@Final
+	public static EntityType<VexEntity> VEX;
+
+	@Shadow
+	@Final
+	public static EntityType<VillagerEntity> VILLAGER;
+
+	@Shadow
+	@Final
+	public static EntityType<VindicatorEntity> VINDICATOR;
+
+	@Shadow
+	@Final
+	public static EntityType<WanderingTraderEntity> WANDERING_TRADER;
+
+	@Shadow
+	@Final
+	public static EntityType<WitchEntity> WITCH;
+
+	@Shadow
+	@Final
+	public static EntityType<WitherEntity> WITHER;
+
+	@Shadow
+	@Final
+	public static EntityType<WitherSkeletonEntity> WITHER_SKELETON;
+
+	@Shadow
+	@Final
+	public static EntityType<WitherSkullEntity> WITHER_SKULL;
+
+	@Shadow
+	@Final
+	public static EntityType<WolfEntity> WOLF;
+
+	@Shadow
+	@Final
+	public static EntityType<ZoglinEntity> ZOGLIN;
+
+	@Shadow
+	@Final
+	public static EntityType<ZombieEntity> ZOMBIE;
+
+	@Shadow
+	@Final
+	public static EntityType<ZombieHorseEntity> ZOMBIE_HORSE;
+
+	@Shadow
+	@Final
+	public static EntityType<ZombieVillagerEntity> ZOMBIE_VILLAGER;
+
+	@Shadow
+	@Final
+	public static EntityType<ZombifiedPiglinEntity> ZOMBIFIED_PIGLIN;
+
+	@Shadow
+	@Final
+	public static EntityType<PlayerEntity> PLAYER;
+
+	@Shadow
+	@Final
+	public static EntityType<FishingBobberEntity> FISHING_BOBBER;
+
+	@Shadow
+	@Final
+	private static Logger LOGGER;
+
+	@Shadow
+	@Final
+	private final EntityType.IFactory<T> factory;
+
+	@Shadow
+	@Final
+	private final EntityClassification classification;
+
+	@Shadow
+	@Final
+	private final ImmutableSet<Block> field_233593_bg_;
+
+	@Shadow
+	@Final
+	private final boolean serializable;
+
+	@Shadow
+	@Final
+	private final boolean summonable;
+
+	@Shadow
+	@Final
+	private final boolean immuneToFire;
+
+	@Shadow
+	@Final
+	private final boolean field_225438_be;
+
+	@Shadow
+	@Final
+	private final int defaultTrackingRange;
+
+	@Shadow
+	@Final
+	private final int defaultUpdateInterval;
+
+	@Shadow
+	@Nullable
+	private final String translationKey;
+
+	@Shadow
+	@Nullable
+	private final ITextComponent name;
+
+	@Shadow
+	@Nullable
+	private final ResourceLocation lootTable;
+
+	@Shadow
+	@Final
+	private final EntitySize size;
+
+	@Shadow
+	@Final
+	private final java.util.function.Predicate<EntityType<?>> velocityUpdateSupplier;
+
+	@Shadow
+	@Final
+	private final java.util.function.ToIntFunction<EntityType<?>> trackingRangeSupplier;
+
+	@Shadow
+	@Final
+	private final java.util.function.ToIntFunction<EntityType<?>> updateIntervalSupplier;
+
+	@Shadow
+	@Final
+	private final java.util.function.BiFunction<net.minecraftforge.fml.network.FMLPlayMessages.SpawnEntity, World, T> customClientFactory;
+
+	@Shadow
+	@Final
+	private final net.minecraftforge.common.util.ReverseTagWrapper<EntityType<?>> reverseTags;
+
+	@Shadow
+	public EntityType(EntityType.IFactory<T> factory, EntityClassification classification, boolean p_i231489_3_, boolean summonable, boolean immuneToFire, boolean p_i231489_6_, ImmutableSet<Block> p_i231489_7_, EntitySize size, int trackingRange, int updateInterval) {
+		throw new UnsupportedOperationException();
+	}
+
+	@Shadow
+	public EntityType(EntityType.IFactory<T> factory, EntityClassification classification, boolean p_i231489_3_, boolean summonable, boolean immuneToFire, boolean p_i231489_6_, ImmutableSet<Block> p_i231489_7_, EntitySize size, int trackingRange, int updateInterval, final java.util.function.Predicate<EntityType<?>> velocityUpdateSupplier, final java.util.function.ToIntFunction<EntityType<?>> trackingRangeSupplier, final java.util.function.ToIntFunction<EntityType<?>> updateIntervalSupplier, final java.util.function.BiFunction<net.minecraftforge.fml.network.FMLPlayMessages.SpawnEntity, World, T> customClientFactory) {
+		throw new UnsupportedOperationException();
+	}
+
+	@Shadow
+	private static <T extends Entity> EntityType<T> register(String key, EntityType.Builder<T> builder) {
+		throw new UnsupportedOperationException();
+	}
+
+	@Shadow
+	public static ResourceLocation getKey(EntityType<?> entityTypeIn) {
+		throw new UnsupportedOperationException();
+	}
+
+	@Shadow
+	public static Optional<EntityType<?>> byKey(String key) {
+		throw new UnsupportedOperationException();
+	}
+
+	@Shadow
+	protected static double func_208051_a(IWorldReader worldReader, BlockPos pos, boolean p_208051_2_, AxisAlignedBB p_208051_3_) {
+		throw new UnsupportedOperationException();
+	}
+
+	@Shadow
+	public static void applyItemNBT(World worldIn, @Nullable PlayerEntity player, @Nullable Entity spawnedEntity, @Nullable CompoundNBT itemNBT) {
+		throw new UnsupportedOperationException();
+	}
+
+	@Shadow
+	@Nullable
+	@OnlyIn(Dist.CLIENT)
+	public static Entity create(int id, World worldIn) {
+		throw new UnsupportedOperationException();
+	}
+
+	@Shadow
+	public static Optional<Entity> loadEntityUnchecked(CompoundNBT compound, World worldIn) {
+		throw new UnsupportedOperationException();
+	}
+
+	@Shadow
+	@Nullable
+	@OnlyIn(Dist.CLIENT)
+	private static Entity create(World worldIn, @Nullable EntityType<?> type) {
+		throw new UnsupportedOperationException();
+	}
+
+	@Shadow
+	public static Optional<EntityType<?>> readEntityType(CompoundNBT compound) {
+		throw new UnsupportedOperationException();
+	}
+
+	@Shadow
+	@Nullable
+	public static Entity loadEntityAndExecute(CompoundNBT compound, World worldIn, Function<Entity, Entity> p_220335_2_) {
+		throw new UnsupportedOperationException();
+	}
+
+	@Shadow
+	private static Optional<Entity> loadEntity(CompoundNBT compound, World worldIn) {
+		throw new UnsupportedOperationException();
+	}
+
+	@Shadow
+	@Nullable
+	public Entity spawn(ServerWorld worldIn, @Nullable ItemStack stack, @Nullable PlayerEntity playerIn, BlockPos pos, SpawnReason reason, boolean p_220331_6_, boolean p_220331_7_) {
+		throw new UnsupportedOperationException();
+	}
+
+	@Shadow
+	@Nullable
+	public T spawn(ServerWorld worldIn, @Nullable CompoundNBT compound, @Nullable ITextComponent customName, @Nullable PlayerEntity playerIn, BlockPos pos, SpawnReason reason, boolean p_220342_7_, boolean p_220342_8_) {
+		throw new UnsupportedOperationException();
+	}
+
+	@Shadow
+	@Nullable
+	public T create(ServerWorld worldIn, @Nullable CompoundNBT compound, @Nullable ITextComponent customName, @Nullable PlayerEntity playerIn, BlockPos pos, SpawnReason reason, boolean p_220349_7_, boolean p_220349_8_) {
+		throw new UnsupportedOperationException();
+	}
+
+	@Shadow
+	public boolean isSerializable() {
+		throw new UnsupportedOperationException();
+	}
+
+	@Shadow
+	public boolean isSummonable() {
+		throw new UnsupportedOperationException();
+	}
+
+	@Shadow
+	public boolean isImmuneToFire() {
+		throw new UnsupportedOperationException();
+	}
+
+	@Shadow
+	public boolean func_225437_d() {
+		throw new UnsupportedOperationException();
+	}
+
+	@Shadow
+	public EntityClassification getClassification() {
+		throw new UnsupportedOperationException();
+	}
+
+	@Shadow
+	public String getTranslationKey() {
+		throw new UnsupportedOperationException();
+	}
+
+	@Shadow
+	public ITextComponent getName() {
+		throw new UnsupportedOperationException();
+	}
+
+	@Shadow
+	public String toString() {
+		throw new UnsupportedOperationException();
+	}
+
+	@Shadow
+	public ResourceLocation getLootTable() {
+		throw new UnsupportedOperationException();
+	}
+
+	@Shadow
+	public float getWidth() {
+		throw new UnsupportedOperationException();
+	}
+
+	@Shadow
+	public float getHeight() {
+		throw new UnsupportedOperationException();
+	}
+
+	@Shadow
+	@Nullable
+	public T create(World worldIn) {
+		throw new UnsupportedOperationException();
+	}
+
+	@Shadow
+	public AxisAlignedBB getBoundingBoxWithSizeApplied(double p_220328_1_, double p_220328_3_, double p_220328_5_) {
+		throw new UnsupportedOperationException();
+	}
+
+	@Shadow
+	public boolean func_233597_a_(BlockState p_233597_1_) {
+		throw new UnsupportedOperationException();
+	}
+
+	@Shadow
+	public EntitySize getSize() {
+		throw new UnsupportedOperationException();
+	}
+
+	@Shadow
+	public int func_233602_m_() {
+		throw new UnsupportedOperationException();
+	}
+
+	@Shadow
+	private int defaultTrackingRangeSupplier() {
+		throw new UnsupportedOperationException();
+	}
+
+	@Shadow
+	public int getUpdateFrequency() {
+		throw new UnsupportedOperationException();
+	}
+
+	@Shadow
+	private int defaultUpdateIntervalSupplier() {
+		throw new UnsupportedOperationException();
+	}
+
+	@Shadow
+	public boolean shouldSendVelocityUpdates() {
+		throw new UnsupportedOperationException();
+	}
+
+	@Shadow
+	private boolean defaultVelocitySupplier() {
+		throw new UnsupportedOperationException();
+	}
+
+	@Shadow
+	public boolean isContained(ITag<EntityType<?>> tagIn) {
+		throw new UnsupportedOperationException();
+	}
+
+	@Shadow
+	public T customClientSpawn(net.minecraftforge.fml.network.FMLPlayMessages.SpawnEntity packet, World world) {
+		throw new UnsupportedOperationException();
+	}
+
+	/**
+	 * Retrieves a list of tags names this is known to be associated with.
+	 * This should be used in favor of TagCollection.getOwningTags, as this caches the result and automatically updates when the TagCollection changes.
+	 */
+	@Shadow
+	public java.util.Set<ResourceLocation> getTags() {
+		throw new UnsupportedOperationException();
+	}
+
+	public interface IFactory<T extends Entity> {
+		@Shadow
+		T create(EntityType<T> p_create_1_, World p_create_2_);
+	}
+
+	public static class Builder<T extends Entity> {
+		@Shadow
+		@Final
+		private final EntityType.IFactory<T> factory;
+
+		@Shadow
+		@Final
+		private final EntityClassification classification;
+
+		@Shadow
+		private final ImmutableSet<Block> field_233603_c_;
+
+		@Shadow
+		private final boolean serializable;
+
+		@Shadow
+		private final boolean summonable;
+
+		@Shadow
+		private final boolean immuneToFire;
+
+		@Shadow
+		private final boolean field_225436_f;
+
+		@Shadow
+		private final int trackingRange;
+
+		@Shadow
+		private final int field_233605_i_;
+
+		@Shadow
+		private final EntitySize size;
+
+		@Shadow
+		private final java.util.function.Predicate<EntityType<?>> velocityUpdateSupplier;
+
+		@Shadow
+		private final java.util.function.ToIntFunction<EntityType<?>> trackingRangeSupplier;
+
+		@Shadow
+		private final java.util.function.ToIntFunction<EntityType<?>> updateIntervalSupplier;
+
+		@Shadow
+		private final java.util.function.BiFunction<net.minecraftforge.fml.network.FMLPlayMessages.SpawnEntity, World, T> customClientFactory;
+
+		@Shadow
+		private Builder(EntityType.IFactory<T> factoryIn, EntityClassification classificationIn) {
+			throw new UnsupportedOperationException();
+		}
+
+		@Shadow
+		public static <T extends Entity> EntityType.Builder<T> create(EntityType.IFactory<T> factoryIn, EntityClassification classificationIn) {
+			throw new UnsupportedOperationException();
+		}
+
+		@Shadow
+		public static <T extends Entity> EntityType.Builder<T> create(EntityClassification classificationIn) {
+			throw new UnsupportedOperationException();
+		}
+
+		@Shadow
+		public EntityType.Builder<T> size(float width, float height) {
+			throw new UnsupportedOperationException();
+		}
+
+		@Shadow
+		public EntityType.Builder<T> disableSummoning() {
+			throw new UnsupportedOperationException();
+		}
+
+		@Shadow
+		public EntityType.Builder<T> disableSerialization() {
+			throw new UnsupportedOperationException();
+		}
+
+		@Shadow
+		public EntityType.Builder<T> immuneToFire() {
+			throw new UnsupportedOperationException();
+		}
+
+		@Shadow
+		public EntityType.Builder<T> func_233607_a_(Block... p_233607_1_) {
+			throw new UnsupportedOperationException();
+		}
+
+		@Shadow
+		public EntityType.Builder<T> func_225435_d() {
+			throw new UnsupportedOperationException();
+		}
+
+		@Shadow
+		public EntityType.Builder<T> trackingRange(int range) {
+			throw new UnsupportedOperationException();
+		}
+
+		@Shadow
+		public EntityType.Builder<T> func_233608_b_(int p_233608_1_) {
+			throw new UnsupportedOperationException();
+		}
+
+		@Shadow
+		public EntityType.Builder<T> setUpdateInterval(int interval) {
+			throw new UnsupportedOperationException();
+		}
+
+		@Shadow
+		public EntityType.Builder<T> setTrackingRange(int range) {
+			throw new UnsupportedOperationException();
+		}
+
+		@Shadow
+		public EntityType.Builder<T> setShouldReceiveVelocityUpdates(boolean value) {
+			throw new UnsupportedOperationException();
+		}
+
+		/**
+		 * By default, entities are spawned clientside via {@link EntityType#create(World)}.
+		 * If you need finer control over the spawning process, use this to get read access to the spawn packet.
+		 */
+		@Shadow
+		public EntityType.Builder<T> setCustomClientFactory(java.util.function.BiFunction<net.minecraftforge.fml.network.FMLPlayMessages.SpawnEntity, World, T> customClientFactory) {
+			throw new UnsupportedOperationException();
+		}
+
+		@Shadow
+		public EntityType<T> build(String id) {
+			throw new UnsupportedOperationException();
+		}
+	}
 }

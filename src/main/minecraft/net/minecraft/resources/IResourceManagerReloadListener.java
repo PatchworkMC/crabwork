@@ -4,7 +4,7 @@ import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.Executor;
 
 import net.minecraft.profiler.IProfiler;
-import net.minecraft.util.Unit;
+
 import net.patchworkmc.crabwork.asm.Shadow;
 
 /**
@@ -13,17 +13,17 @@ import net.patchworkmc.crabwork.asm.Shadow;
  */
 @Deprecated
 public interface IResourceManagerReloadListener extends IFutureReloadListener {
-    @Shadow
-    default CompletableFuture<Void> reload(IFutureReloadListener.IStage stage, IResourceManager resourceManager, IProfiler preparationsProfiler, IProfiler reloadProfiler, Executor backgroundExecutor, Executor gameExecutor) {
-        throw new UnsupportedOperationException();
-    }
+	@Shadow
+	default CompletableFuture<Void> reload(IFutureReloadListener.IStage stage, IResourceManager resourceManager, IProfiler preparationsProfiler, IProfiler reloadProfiler, Executor backgroundExecutor, Executor gameExecutor) {
+		throw new UnsupportedOperationException();
+	}
 
-    @Shadow
-    void onResourceManagerReload(IResourceManager resourceManager);
+	@Shadow
+	void onResourceManagerReload(IResourceManager resourceManager);
 
-    @Shadow
-    @javax.annotation.Nullable
-    default net.minecraftforge.resource.IResourceType getResourceType() {
-        throw new UnsupportedOperationException();
-    }
+	@Shadow
+	@javax.annotation.Nullable
+	default net.minecraftforge.resource.IResourceType getResourceType() {
+		throw new UnsupportedOperationException();
+	}
 }
