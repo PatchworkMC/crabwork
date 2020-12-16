@@ -19,5 +19,30 @@
 
 package net.patchworkmc.crabwork.mixins.advancements;
 
+import java.util.Map;
+import java.util.Set;
+
+import net.minecraftforge.common.AdvancementLoadFix;
+import org.spongepowered.asm.mixin.Final;
+import org.spongepowered.asm.mixin.Mixin;
+import org.spongepowered.asm.mixin.Shadow;
+import org.spongepowered.asm.mixin.injection.At;
+import org.spongepowered.asm.mixin.injection.Inject;
+import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
+
+import net.minecraft.advancements.Advancement;
+import net.minecraft.advancements.AdvancementList;
+import net.minecraft.util.ResourceLocation;
+
+@Mixin(AdvancementList.class)
 public class AdvancementListMixin {
+
+	@Shadow
+	@Final
+	private Set<Advancement> roots;
+
+	@Inject(method = "loadAdvancements", at = @At(value = "INVOKE", target = "Lorg/apache/logging/log4j/Logger;info(Ljava/lang/String;Ljava/lang/Object;)V"))
+	private void buildSortedTrees(Map<ResourceLocation, Advancement.Builder> map, CallbackInfo callbackInfo) {
+		AdvancementLoadFix.buildSortedTrees(roots);
+	}
 }

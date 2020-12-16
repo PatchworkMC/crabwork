@@ -4,6 +4,12 @@
   "package": "net.patchworkmc.crabwork.mixins",
   "compatibilityLevel": "JAVA_8",
   "mixins": [
+    "advancements.AdvancementListMixin",
+    "advancements.AdvancementManagerMixin",
+    "advancements.AdvancementMixin",
+    "advancements.AdvancementMixin$BuilderMixin",
+    "advancements.AdvancementRewardsMixin",
+    "advancements.PlayerAdvancementsMixin"
   ],
   "injectors": {
     "defaultRequire": 1

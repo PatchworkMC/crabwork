@@ -19,5 +19,35 @@
 
 package net.patchworkmc.crabwork.mixins.advancements;
 
+import com.google.gson.JsonObject;
+import net.minecraftforge.common.crafting.ConditionalAdvancement;
+import org.spongepowered.asm.mixin.Mixin;
+import org.spongepowered.asm.mixin.injection.At;
+import org.spongepowered.asm.mixin.injection.Inject;
+import org.spongepowered.asm.mixin.injection.ModifyVariable;
+import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
+
+import net.minecraft.advancements.Advancement;
+import net.minecraft.loot.ConditionArrayParser;
+
+@Mixin(Advancement.class)
 public class AdvancementMixin {
+
+	@Mixin(Advancement.Builder.class)
+	public static class BuilderMixin {
+
+		// Order matters!
+
+		@Inject(method = "deserialize", at = @At("HEAD"), cancellable = true)
+		private static void processConditional(JsonObject jsonObject, ConditionArrayParser conditionArrayParser, CallbackInfoReturnable<Advancement.Builder> callbackInfoReturnable) {
+			if (jsonObject == null) {
+				callbackInfoReturnable.setReturnValue(null);
+			}
+		}
+
+		@ModifyVariable(method = "deserialize", at = @At("HEAD"), argsOnly = true, index = 0)
+		private static JsonObject modify(JsonObject in) {
+			return ConditionalAdvancement.processConditional(in);
+		}
+	}
 }

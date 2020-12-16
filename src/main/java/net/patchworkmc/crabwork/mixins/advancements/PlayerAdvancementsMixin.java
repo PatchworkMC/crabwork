@@ -19,5 +19,66 @@
 
 package net.patchworkmc.crabwork.mixins.advancements;
 
-public class PlayerAdvancementsMixin {
+import java.util.Map;
+import java.util.Set;
+
+import net.minecraftforge.common.AdvancementLoadFix;
+import net.minecraftforge.common.ForgeConfig;
+import net.minecraftforge.common.util.FakePlayer;
+import org.spongepowered.asm.mixin.Final;
+import org.spongepowered.asm.mixin.Mixin;
+import org.spongepowered.asm.mixin.Shadow;
+import org.spongepowered.asm.mixin.injection.At;
+import org.spongepowered.asm.mixin.injection.Inject;
+import org.spongepowered.asm.mixin.injection.Redirect;
+import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
+
+import net.minecraft.advancements.Advancement;
+import net.minecraft.advancements.AdvancementProgress;
+import net.minecraft.advancements.PlayerAdvancements;
+import net.minecraft.entity.player.ServerPlayerEntity;
+
+@Mixin(PlayerAdvancements.class)
+public abstract class PlayerAdvancementsMixin {
+
+	@Shadow
+	private ServerPlayerEntity player;
+
+	@Shadow
+	@Final
+	private Set<Advancement> visible;
+
+	@Shadow
+	@Final
+	private Set<Advancement> visibilityChanged;
+
+	@Shadow
+	@Final
+	private Set<Advancement> progressChanged;
+
+	@Shadow
+	@Final
+	private Map<Advancement, AdvancementProgress> progress;
+
+	@Shadow
+	protected abstract boolean shouldBeVisible(Advancement advancement);
+
+	@Shadow
+	protected abstract void ensureAllVisible();
+
+	@Redirect(method = "deserialize", at = @At(value = "INVOKE", target = "Lnet/minecraft/advancements/PlayerAdvancements;ensureAllVisible()V"))
+	private void fixAdvancementLoading(PlayerAdvancements playerAdvancements) {
+		if (ForgeConfig.SERVER.fixAdvancementLoading.get()) {
+			AdvancementLoadFix.loadVisibility(playerAdvancements, this.visible, this.visibilityChanged, this.progress, this.progressChanged, this::shouldBeVisible);
+		} else {
+			ensureAllVisible();
+		}
+	}
+
+	@Inject(method = "grantCriterion", at = @At("HEAD"), cancellable = true)
+	private void filterFake(Advancement advancement, String string, CallbackInfoReturnable<Boolean> callbackInfoReturnable) {
+		if (player instanceof FakePlayer) {
+			callbackInfoReturnable.setReturnValue(false);
+		}
+	}
 }

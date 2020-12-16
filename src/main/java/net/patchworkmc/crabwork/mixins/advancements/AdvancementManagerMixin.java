@@ -19,5 +19,31 @@
 
 package net.patchworkmc.crabwork.mixins.advancements;
 
+import java.util.Map;
+
+import org.apache.logging.log4j.Logger;
+import org.spongepowered.asm.mixin.Final;
+import org.spongepowered.asm.mixin.Mixin;
+import org.spongepowered.asm.mixin.Shadow;
+import org.spongepowered.asm.mixin.injection.At;
+import org.spongepowered.asm.mixin.injection.Redirect;
+
+import net.minecraft.advancements.AdvancementManager;
+
+@Mixin(AdvancementManager.class)
 public class AdvancementManagerMixin {
+
+	@Shadow
+	@Final
+	private static Logger LOGGER;
+
+	@Redirect(method = "func_240923_a_", at = @At(value = "INVOKE", target = "Ljava/util/Map;put(Ljava/lang/Object;Ljava/lang/Object;)Ljava/lang/Object;"))
+	private Object putSafely(Map map, Object key, Object value) {
+		if (value == null) {
+			LOGGER.debug("Skipping loading advancement {} as it's conditions were not met", key);
+			return null;
+		} else {
+			return map.put(key, value);
+		}
+	}
 }

@@ -19,5 +19,20 @@
 
 package net.patchworkmc.crabwork.mixins.advancements;
 
+import org.spongepowered.asm.mixin.Mixin;
+import org.spongepowered.asm.mixin.injection.At;
+import org.spongepowered.asm.mixin.injection.Redirect;
+
+import net.minecraft.advancements.AdvancementRewards;
+import net.minecraft.entity.player.ServerPlayerEntity;
+import net.minecraft.loot.LootContext;
+import net.minecraft.loot.LootParameterSet;
+
+@Mixin(AdvancementRewards.class)
 public class AdvancementRewardsMixin {
+
+	@Redirect(method = "apply", at = @At(value = "INVOKE", target = "Lnet/minecraft/loot/LootContext$Builder;build(Lnet/minecraft/loot/LootParameterSet;)Lnet/minecraft/loot/LootContext;"))
+	private LootContext withLuck(LootContext.Builder builder, LootParameterSet parameterSet, ServerPlayerEntity player) {
+		return builder.withLuck(player.getLuck()).build(parameterSet);
+	}
 }
