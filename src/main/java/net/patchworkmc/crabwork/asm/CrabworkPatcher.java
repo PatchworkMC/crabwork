@@ -32,12 +32,12 @@ import org.objectweb.asm.tree.FieldNode;
 import org.objectweb.asm.tree.MethodNode;
 
 class CrabworkPatcher {
-	private static final String ADD_IF_NOT_PRESENT = "Lio/github/fukkitmc/fukkit/asm/AddIfNotPresent;";
-	private static final String FINAL = "Lio/github/fukkitmc/fukkit/asm/Final;";
-	private static final String MERGE_CLASS_INITIALIZER = "Lio/github/fukkitmc/fukkit/asm/MergeClassInitializer;";
-	private static final String REMOVE = "Lio/github/fukkitmc/fukkit/asm/Remove;";
-	private static final String RENAME = "Lio/github/fukkitmc/fukkit/asm/Rename;";
-	private static final String SHADOW = "Lio/github/fukkitmc/fukkit/asm/Shadow;";
+	private static final String ADD_IF_NOT_PRESENT = "Lnet/patchworkmc/crabwork/asm/AddIfNotPresent;";
+	private static final String FINAL = "Lnet/patchworkmc/crabwork/asm/Final;";
+	private static final String MERGE_CLASS_INITIALIZER = "Lnet/patchworkmc/crabwork/asm/MergeClassInitializer;";
+	private static final String REMOVE = "Lnet/patchworkmc/crabwork/asm/Remove;";
+	private static final String RENAME = "Lnet/patchworkmc/crabwork/asm/Rename;";
+	private static final String SHADOW = "Lnet/patchworkmc/crabwork/asm/Shadow;";
 
 	static void merge(ClassNode original, ClassNode patch) {
 		// Step 1 - Copy attributes
